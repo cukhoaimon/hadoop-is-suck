@@ -47,7 +47,7 @@ public class Top10Frequency {
                 totalFrequency += value.get();
             }
 
-            context.write(new IntWritable(totalFrequency), key);
+            context.write(key, new IntWritable(totalFrequency));
         }
     }
 
@@ -63,22 +63,31 @@ public class Top10Frequency {
         }
     }
 
-    public static class FrequencyMapper extends Mapper<Object, Text, Text, IntWritable> {
-        static int counter = 0;
+    public static class ReverseMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
         public void map(Object key, Text value, Context context)
+                throws IOException, InterruptedException {
+            // Đọc dòng dữ liệu từ input
+            String[] parts = value.toString().split("\\s+");
+
+            IntWritable termId = new IntWritable(Integer.parseInt(parts[0]));
+            IntWritable freq = new IntWritable(Integer.parseInt(parts[1]));
+
+            context.write(freq, termId);
+        }
+    }
+
+    public static class ReverseReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+        static int counter = 0;
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
             if (counter == 10) {
                 return;
             }
 
-            // Đọc dòng dữ liệu từ input
-            String[] parts = value.toString().split("\\s+");
-
-            int freq = Integer.parseInt(parts[0]);
-            String termId = parts[1];
-
-            // Sử dụng termId làm key và frequency là value
-            context.write(new Text(termId), new IntWritable(freq));
+            // reverse
+            for (IntWritable val : values) {
+                context.write(val, key);
+            }
             counter++;
         }
     }
@@ -96,7 +105,6 @@ public class Top10Frequency {
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(IntWritable.class);
 
-        job.setSortComparatorClass(DescendingKeyComparator.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1] + ".tmp"));
@@ -107,9 +115,12 @@ public class Top10Frequency {
         Job job2 = Job.getInstance(conf, "filter top 10");
         job2.setJarByClass(Top10Frequency.class);
 
-        job2.setMapperClass(FrequencyMapper.class);
+        job2.setMapperClass(ReverseMapper.class);
+        job2.setReducerClass(ReverseReducer.class);
 
-        job2.setOutputKeyClass(Text.class);
+        job2.setSortComparatorClass(DescendingKeyComparator.class);
+
+        job2.setOutputKeyClass(IntWritable.class);
         job2.setOutputValueClass(IntWritable.class);
 
         FileInputFormat.addInputPath(job2, new Path(args[1] + ".tmp"));
