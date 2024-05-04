@@ -128,7 +128,7 @@ public class TFIDF {
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\s+");
 
-                    map.put(parts[0] + " " + parts[1], Float.parseFloat(parts[2]));
+                    map.put(parts[0] + "\t" + parts[1], Float.parseFloat(parts[2]));
                 }
             }
 
@@ -138,7 +138,7 @@ public class TFIDF {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] parts = value.toString().split("\\s+");
 
-            String aggKey = key.toString() + " " + parts[0];
+            String aggKey = key.toString() + "\t" + parts[0];
             float tfidf = TF.get(aggKey) * IDF.get(aggKey);
 
             context.write(new Text(aggKey), new FloatWritable(tfidf));
