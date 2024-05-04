@@ -110,7 +110,7 @@ public class TFIDF {
 
     public static class FinalMapper extends Mapper<Object, Text, Text, FloatWritable> {
         Map<String, Float> TF = null;
-        Map<String, Float> IDF = new HashMap<>();
+        Map<String, Float> IDF = null;
         @Override
         protected void setup(Context context) throws IOException {
             Configuration conf = context.getConfiguration();
