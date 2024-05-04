@@ -22,14 +22,11 @@ public class LowFrequencyFilter {
             String line = value.toString();
             String[] parts = line.split("\\s+");
 
-            if (parts.length == 3) {
-                String termId = parts[0];
-//                int docId = Integer.parseInt(parts[1]);
-                int freq = Integer.parseInt(parts[2]);
-
-                // Sử dụng termId làm key và frequency là value
-                context.write(new Text(termId), new IntWritable(freq));
-            }
+            // Sử dụng termId làm key và frequency là value
+            context.write(
+                    new Text(parts[0]),
+                    new IntWritable(Integer.parseInt(parts[2]))
+            );
         }
     }
 

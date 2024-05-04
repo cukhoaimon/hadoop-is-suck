@@ -1,23 +1,18 @@
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.lib.MultipleOutputFormat;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class PreProcessBBC {
 
@@ -69,7 +64,8 @@ public class PreProcessBBC {
             String doc = filePath.getParent().getName();
             String name = filePath.getName().split("\\.")[0];
 
-            // skip file bbc.docs, bbc.terms, stopwords.txt
+            // skip file bbc.docs, bbc.terms, stopwords.txt because we put these file
+            // in the same directory of input file.
             if (doc.equals("_ignore")) { return; }
 
             StringTokenizer itr = new StringTokenizer(value.toString());

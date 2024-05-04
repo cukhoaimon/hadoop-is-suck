@@ -80,15 +80,14 @@ public class Top10Frequency {
         static int counter = 0;
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
-            if (counter == 10) {
-                return;
-            }
-
             // reverse
             for (IntWritable val : values) {
+                if (counter == 10) { return; }
+
                 context.write(val, key);
+
+                counter++;
             }
-            counter++;
         }
     }
 
@@ -104,7 +103,6 @@ public class Top10Frequency {
 
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(IntWritable.class);
-
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1] + ".tmp"));
